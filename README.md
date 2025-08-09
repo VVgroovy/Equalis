@@ -104,6 +104,9 @@ npx hardhat run scripts/admin.ts --network sepolia
 - `docs/ARCHITECTURE.md`: architecture
 - `docs/TOKENOMICS.md`: economics
 - `docs/COMPLIANCE_PRIVACY.md`: compliance & privacy
+- `docs/ROADMAP.md`: roadmap
+
+French docs: see `README.fr.md`, `docs/ARCHITECTURE.fr.md`, `docs/TOKENOMICS.fr.md`, `docs/COMPLIANCE_PRIVACY.fr.md`, `docs/ROADMAP.fr.md`.
 
 ### License
 MIT

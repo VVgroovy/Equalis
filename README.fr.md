@@ -102,9 +102,10 @@ npx hardhat run scripts/admin.ts --network sepolia
 Voir `docs/ARCHITECTURE.md` et `docs/COMPLIANCE_PRIVACY.md`.
 
 ### Références
-- `docs/ARCHITECTURE.md`: architecture détaillée
-- `docs/TOKENOMICS.md`: principes économiques
-- `docs/COMPLIANCE_PRIVACY.md`: conformité et privacy
+- `docs/ARCHITECTURE.md` et `docs/ARCHITECTURE.fr.md`
+- `docs/TOKENOMICS.md` et `docs/TOKENOMICS.fr.md`
+- `docs/COMPLIANCE_PRIVACY.md` et `docs/COMPLIANCE_PRIVACY.fr.md`
+- `docs/ROADMAP.md` et `docs/ROADMAP.fr.md`
 
 ### Licence
 MIT

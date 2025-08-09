@@ -1,5 +1,8 @@
 ## Equalis — Capped Payroll with Automatic Redistribution
 
+![CI](https://github.com/VVgroovy/Equalis/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 Equalis is a crypto infrastructure to cap annual compensation (default 20,000,000.00 payment-token units) and automatically redistribute the overflow to eligible adults who opt in.
 
 - Verifiable on-chain contracts (capped payroll, redistribution pool, eligibility registry)
@@ -33,6 +36,22 @@ function registerIdentity(address subject, bytes32 identityId) external onlyRole
 ```
 
 See `contracts/` and `docs/` for details. A French version is available in `README.fr.md`.
+
+### Architecture (high level)
+
+```mermaid
+graph TD
+  Employer-->Payroll[RedistributivePayroll]
+  Payroll-->Limiter[CompensationLimiter]
+  Payroll-- overflow -->Pool[RedistributionPool]
+  Pool-- weekly batches -->Eligible[Eligible recipients]
+  Registry[EligibilityRegistry]-- attesters -->Eligible
+  Gov[Timelock + Governor]-->Params[Protocol params]
+  Params-->Payroll
+  Params-->Pool
+  Automation[Chainlink Upkeep]-->Pool
+  Merkle[MerkleEpochDistributor]-- claims -->Eligible
+```
 
 ### Install
 

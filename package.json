@@ -1,0 +1,25 @@
+{
+  "name": "equalis-protocol",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Redistributive payroll and pool smart contracts with Hardhat",
+  "scripts": {
+    "build": "hardhat compile",
+    "test": "hardhat test",
+    "lint": "echo 'no linter configured'",
+    "deploy": "hardhat run scripts/deploy.ts --network localhost"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.0.2",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "ethers": "^6.13.2"
+  }
+}
+
+

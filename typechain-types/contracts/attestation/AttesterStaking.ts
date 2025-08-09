@@ -21,39 +21,37 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../common";
+} from "../../common";
 
-export interface RedistributivePayrollInterface extends Interface {
+export interface AttesterStakingInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "ADMIN_ROLE"
       | "DEFAULT_ADMIN_ROLE"
-      | "EMPLOYER_ROLE"
-      | "fundAndPay"
+      | "SLASHER_ROLE"
       | "getRoleAdmin"
       | "grantRole"
       | "hasRole"
-      | "limiter"
-      | "pause"
-      | "paused"
-      | "pool"
-      | "registry"
+      | "isStaked"
+      | "minStake"
       | "renounceRole"
       | "revokeRole"
-      | "setEmployer"
+      | "slash"
+      | "stake"
+      | "stakeOf"
+      | "stakeToken"
       | "supportsInterface"
-      | "token"
-      | "unpause"
+      | "withdraw"
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "Paid"
-      | "Paused"
       | "RoleAdminChanged"
       | "RoleGranted"
       | "RoleRevoked"
-      | "Unpaused"
+      | "Slashed"
+      | "Staked"
+      | "Unstaked"
   ): EventFragment;
 
   encodeFunctionData(
@@ -65,12 +63,8 @@ export interface RedistributivePayrollInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "EMPLOYER_ROLE",
+    functionFragment: "SLASHER_ROLE",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "fundAndPay",
-    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
@@ -84,11 +78,11 @@ export interface RedistributivePayrollInterface extends Interface {
     functionFragment: "hasRole",
     values: [BytesLike, AddressLike]
   ): string;
-  encodeFunctionData(functionFragment: "limiter", values?: undefined): string;
-  encodeFunctionData(functionFragment: "pause", values?: undefined): string;
-  encodeFunctionData(functionFragment: "paused", values?: undefined): string;
-  encodeFunctionData(functionFragment: "pool", values?: undefined): string;
-  encodeFunctionData(functionFragment: "registry", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "isStaked",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(functionFragment: "minStake", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "renounceRole",
     values: [BytesLike, AddressLike]
@@ -98,15 +92,26 @@ export interface RedistributivePayrollInterface extends Interface {
     values: [BytesLike, AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "setEmployer",
-    values: [AddressLike, boolean]
+    functionFragment: "slash",
+    values: [AddressLike, BigNumberish, AddressLike]
+  ): string;
+  encodeFunctionData(functionFragment: "stake", values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: "stakeOf",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "stakeToken",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
   ): string;
-  encodeFunctionData(functionFragment: "token", values?: undefined): string;
-  encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "withdraw",
+    values: [BigNumberish]
+  ): string;
 
   decodeFunctionResult(functionFragment: "ADMIN_ROLE", data: BytesLike): Result;
   decodeFunctionResult(
@@ -114,76 +119,31 @@ export interface RedistributivePayrollInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "EMPLOYER_ROLE",
+    functionFragment: "SLASHER_ROLE",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "fundAndPay", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "limiter", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "pool", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "registry", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isStaked", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "minStake", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceRole",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setEmployer",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "slash", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "stake", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "stakeOf", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "stakeToken", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
-}
-
-export namespace PaidEvent {
-  export type InputTuple = [
-    employer: AddressLike,
-    employee: AddressLike,
-    identityId: BytesLike,
-    paid: BigNumberish,
-    overflow: BigNumberish
-  ];
-  export type OutputTuple = [
-    employer: string,
-    employee: string,
-    identityId: string,
-    paid: bigint,
-    overflow: bigint
-  ];
-  export interface OutputObject {
-    employer: string;
-    employee: string;
-    identityId: string;
-    paid: bigint;
-    overflow: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace PausedEvent {
-  export type InputTuple = [account: AddressLike];
-  export type OutputTuple = [account: string];
-  export interface OutputObject {
-    account: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
+  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 }
 
 export namespace RoleAdminChangedEvent {
@@ -244,11 +204,21 @@ export namespace RoleRevokedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace UnpausedEvent {
-  export type InputTuple = [account: AddressLike];
-  export type OutputTuple = [account: string];
+export namespace SlashedEvent {
+  export type InputTuple = [
+    attester: AddressLike,
+    amount: BigNumberish,
+    recipient: AddressLike
+  ];
+  export type OutputTuple = [
+    attester: string,
+    amount: bigint,
+    recipient: string
+  ];
   export interface OutputObject {
-    account: string;
+    attester: string;
+    amount: bigint;
+    recipient: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -256,11 +226,37 @@ export namespace UnpausedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export interface RedistributivePayroll extends BaseContract {
-  connect(runner?: ContractRunner | null): RedistributivePayroll;
+export namespace StakedEvent {
+  export type InputTuple = [attester: AddressLike, amount: BigNumberish];
+  export type OutputTuple = [attester: string, amount: bigint];
+  export interface OutputObject {
+    attester: string;
+    amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace UnstakedEvent {
+  export type InputTuple = [attester: AddressLike, amount: BigNumberish];
+  export type OutputTuple = [attester: string, amount: bigint];
+  export interface OutputObject {
+    attester: string;
+    amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export interface AttesterStaking extends BaseContract {
+  connect(runner?: ContractRunner | null): AttesterStaking;
   waitForDeployment(): Promise<this>;
 
-  interface: RedistributivePayrollInterface;
+  interface: AttesterStakingInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -303,13 +299,7 @@ export interface RedistributivePayroll extends BaseContract {
 
   DEFAULT_ADMIN_ROLE: TypedContractMethod<[], [string], "view">;
 
-  EMPLOYER_ROLE: TypedContractMethod<[], [string], "view">;
-
-  fundAndPay: TypedContractMethod<
-    [employee: AddressLike, amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  SLASHER_ROLE: TypedContractMethod<[], [string], "view">;
 
   getRoleAdmin: TypedContractMethod<[role: BytesLike], [string], "view">;
 
@@ -325,15 +315,9 @@ export interface RedistributivePayroll extends BaseContract {
     "view"
   >;
 
-  limiter: TypedContractMethod<[], [string], "view">;
+  isStaked: TypedContractMethod<[attester: AddressLike], [boolean], "view">;
 
-  pause: TypedContractMethod<[], [void], "nonpayable">;
-
-  paused: TypedContractMethod<[], [boolean], "view">;
-
-  pool: TypedContractMethod<[], [string], "view">;
-
-  registry: TypedContractMethod<[], [string], "view">;
+  minStake: TypedContractMethod<[], [bigint], "view">;
 
   renounceRole: TypedContractMethod<
     [role: BytesLike, callerConfirmation: AddressLike],
@@ -347,11 +331,17 @@ export interface RedistributivePayroll extends BaseContract {
     "nonpayable"
   >;
 
-  setEmployer: TypedContractMethod<
-    [employer: AddressLike, isEmployer: boolean],
+  slash: TypedContractMethod<
+    [attester: AddressLike, amount: BigNumberish, recipient: AddressLike],
     [void],
     "nonpayable"
   >;
+
+  stake: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+
+  stakeOf: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+
+  stakeToken: TypedContractMethod<[], [string], "view">;
 
   supportsInterface: TypedContractMethod<
     [interfaceId: BytesLike],
@@ -359,9 +349,7 @@ export interface RedistributivePayroll extends BaseContract {
     "view"
   >;
 
-  token: TypedContractMethod<[], [string], "view">;
-
-  unpause: TypedContractMethod<[], [void], "nonpayable">;
+  withdraw: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
@@ -374,15 +362,8 @@ export interface RedistributivePayroll extends BaseContract {
     nameOrSignature: "DEFAULT_ADMIN_ROLE"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "EMPLOYER_ROLE"
+    nameOrSignature: "SLASHER_ROLE"
   ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "fundAndPay"
-  ): TypedContractMethod<
-    [employee: AddressLike, amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "getRoleAdmin"
   ): TypedContractMethod<[role: BytesLike], [string], "view">;
@@ -401,20 +382,11 @@ export interface RedistributivePayroll extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "limiter"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: "isStaked"
+  ): TypedContractMethod<[attester: AddressLike], [boolean], "view">;
   getFunction(
-    nameOrSignature: "pause"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "paused"
-  ): TypedContractMethod<[], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "pool"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "registry"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: "minStake"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "renounceRole"
   ): TypedContractMethod<
@@ -430,36 +402,28 @@ export interface RedistributivePayroll extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "setEmployer"
+    nameOrSignature: "slash"
   ): TypedContractMethod<
-    [employer: AddressLike, isEmployer: boolean],
+    [attester: AddressLike, amount: BigNumberish, recipient: AddressLike],
     [void],
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "stake"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "stakeOf"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "stakeToken"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "supportsInterface"
   ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
   getFunction(
-    nameOrSignature: "token"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "unpause"
-  ): TypedContractMethod<[], [void], "nonpayable">;
+    nameOrSignature: "withdraw"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
-  getEvent(
-    key: "Paid"
-  ): TypedContractEvent<
-    PaidEvent.InputTuple,
-    PaidEvent.OutputTuple,
-    PaidEvent.OutputObject
-  >;
-  getEvent(
-    key: "Paused"
-  ): TypedContractEvent<
-    PausedEvent.InputTuple,
-    PausedEvent.OutputTuple,
-    PausedEvent.OutputObject
-  >;
   getEvent(
     key: "RoleAdminChanged"
   ): TypedContractEvent<
@@ -482,36 +446,28 @@ export interface RedistributivePayroll extends BaseContract {
     RoleRevokedEvent.OutputObject
   >;
   getEvent(
-    key: "Unpaused"
+    key: "Slashed"
   ): TypedContractEvent<
-    UnpausedEvent.InputTuple,
-    UnpausedEvent.OutputTuple,
-    UnpausedEvent.OutputObject
+    SlashedEvent.InputTuple,
+    SlashedEvent.OutputTuple,
+    SlashedEvent.OutputObject
+  >;
+  getEvent(
+    key: "Staked"
+  ): TypedContractEvent<
+    StakedEvent.InputTuple,
+    StakedEvent.OutputTuple,
+    StakedEvent.OutputObject
+  >;
+  getEvent(
+    key: "Unstaked"
+  ): TypedContractEvent<
+    UnstakedEvent.InputTuple,
+    UnstakedEvent.OutputTuple,
+    UnstakedEvent.OutputObject
   >;
 
   filters: {
-    "Paid(address,address,bytes32,uint256,uint256)": TypedContractEvent<
-      PaidEvent.InputTuple,
-      PaidEvent.OutputTuple,
-      PaidEvent.OutputObject
-    >;
-    Paid: TypedContractEvent<
-      PaidEvent.InputTuple,
-      PaidEvent.OutputTuple,
-      PaidEvent.OutputObject
-    >;
-
-    "Paused(address)": TypedContractEvent<
-      PausedEvent.InputTuple,
-      PausedEvent.OutputTuple,
-      PausedEvent.OutputObject
-    >;
-    Paused: TypedContractEvent<
-      PausedEvent.InputTuple,
-      PausedEvent.OutputTuple,
-      PausedEvent.OutputObject
-    >;
-
     "RoleAdminChanged(bytes32,bytes32,bytes32)": TypedContractEvent<
       RoleAdminChangedEvent.InputTuple,
       RoleAdminChangedEvent.OutputTuple,
@@ -545,15 +501,37 @@ export interface RedistributivePayroll extends BaseContract {
       RoleRevokedEvent.OutputObject
     >;
 
-    "Unpaused(address)": TypedContractEvent<
-      UnpausedEvent.InputTuple,
-      UnpausedEvent.OutputTuple,
-      UnpausedEvent.OutputObject
+    "Slashed(address,uint256,address)": TypedContractEvent<
+      SlashedEvent.InputTuple,
+      SlashedEvent.OutputTuple,
+      SlashedEvent.OutputObject
     >;
-    Unpaused: TypedContractEvent<
-      UnpausedEvent.InputTuple,
-      UnpausedEvent.OutputTuple,
-      UnpausedEvent.OutputObject
+    Slashed: TypedContractEvent<
+      SlashedEvent.InputTuple,
+      SlashedEvent.OutputTuple,
+      SlashedEvent.OutputObject
+    >;
+
+    "Staked(address,uint256)": TypedContractEvent<
+      StakedEvent.InputTuple,
+      StakedEvent.OutputTuple,
+      StakedEvent.OutputObject
+    >;
+    Staked: TypedContractEvent<
+      StakedEvent.InputTuple,
+      StakedEvent.OutputTuple,
+      StakedEvent.OutputObject
+    >;
+
+    "Unstaked(address,uint256)": TypedContractEvent<
+      UnstakedEvent.InputTuple,
+      UnstakedEvent.OutputTuple,
+      UnstakedEvent.OutputObject
+    >;
+    Unstaked: TypedContractEvent<
+      UnstakedEvent.InputTuple,
+      UnstakedEvent.OutputTuple,
+      UnstakedEvent.OutputObject
     >;
   };
 }

@@ -4,12 +4,13 @@ pragma solidity ^0.8.26;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {EligibilityRegistry} from "./EligibilityRegistry.sol";
 
 /// @title RedistributionPool
 /// @notice Holds overflow funds and periodically redistributes them to eligible addresses.
 /// @dev Pagination via distributionCursor + maxRecipients to avoid OOG.
-contract RedistributionPool is AccessControl, ReentrancyGuard {
+contract RedistributionPool is AccessControl, ReentrancyGuard, Pausable {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant DEPOSITOR_ROLE = keccak256("DEPOSITOR_ROLE");
 
@@ -34,7 +35,7 @@ contract RedistributionPool is AccessControl, ReentrancyGuard {
     }
 
     /// @notice Deposit overflow funds. Typically called by payroll contracts.
-    function deposit(uint256 amount) external nonReentrant {
+    function deposit(uint256 amount) external nonReentrant whenNotPaused {
         require(amount > 0, "amount=0");
         bool ok = token.transferFrom(msg.sender, address(this), amount);
         require(ok, "transfer failed");
@@ -43,7 +44,7 @@ contract RedistributionPool is AccessControl, ReentrancyGuard {
 
     /// @notice Distributes the current balance equally to up to maxRecipients, starting at distributionCursor.
     /// @dev Can be called by anyone (permissionless), throttled by minDistributionInterval once a full cycle finishes.
-    function distribute(uint256 maxRecipients) external nonReentrant {
+    function distribute(uint256 maxRecipients) external nonReentrant whenNotPaused {
         uint256 totalEligible = registry.eligibleCount();
         require(totalEligible > 0, "no eligible");
 
@@ -76,6 +77,9 @@ contract RedistributionPool is AccessControl, ReentrancyGuard {
 
         emit Distributed(num, amountPerRecipient, uint64(block.timestamp), distributionCursor);
     }
+
+    function pause() external onlyRole(ADMIN_ROLE) { _pause(); }
+    function unpause() external onlyRole(ADMIN_ROLE) { _unpause(); }
 }
 
 

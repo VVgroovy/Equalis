@@ -3,6 +3,7 @@ pragma solidity ^0.8.26;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {EligibilityRegistry} from "./EligibilityRegistry.sol";
 import {CompensationLimiter} from "./CompensationLimiter.sol";
@@ -10,7 +11,7 @@ import {RedistributionPool} from "./RedistributionPool.sol";
 
 /// @title RedistributivePayroll
 /// @notice Employers fund and pay employees; amounts above the annual cap are redirected to the redistribution pool.
-contract RedistributivePayroll is AccessControl, ReentrancyGuard {
+contract RedistributivePayroll is AccessControl, ReentrancyGuard, Pausable {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant EMPLOYER_ROLE = keccak256("EMPLOYER_ROLE");
 
@@ -49,7 +50,7 @@ contract RedistributivePayroll is AccessControl, ReentrancyGuard {
     }
 
     /// @notice Transfers `amount` from employer to this contract, pays employee up to cap remainder, and deposits overflow to pool.
-    function fundAndPay(address employee, uint256 amount) external nonReentrant onlyRole(EMPLOYER_ROLE) {
+    function fundAndPay(address employee, uint256 amount) external nonReentrant onlyRole(EMPLOYER_ROLE) whenNotPaused {
         require(employee != address(0), "employee=0");
         require(amount > 0, "amount=0");
         bool pulled = token.transferFrom(msg.sender, address(this), amount);
@@ -77,6 +78,14 @@ contract RedistributivePayroll is AccessControl, ReentrancyGuard {
         }
 
         emit Paid(msg.sender, employee, identityId, allowed, overflow);
+    }
+
+    function pause() external onlyRole(ADMIN_ROLE) {
+        _pause();
+    }
+
+    function unpause() external onlyRole(ADMIN_ROLE) {
+        _unpause();
     }
 }
 

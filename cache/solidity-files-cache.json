@@ -226,8 +226,8 @@
       ]
     },
     "/Users/vivienfoucaut/Equalis/contracts/RedistributivePayroll.sol": {
-      "lastModificationDate": 1754771735605,
-      "contentHash": "95a3652d9e99ad644fc34ead4856c4a9",
+      "lastModificationDate": 1754776903307,
+      "contentHash": "320b11190862b44c958372d74d181f37",
       "sourceName": "contracts/RedistributivePayroll.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -256,6 +256,7 @@
       "imports": [
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "@openzeppelin/contracts/access/AccessControl.sol",
+        "@openzeppelin/contracts/utils/Pausable.sol",
         "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
         "./EligibilityRegistry.sol",
         "./CompensationLimiter.sol",
@@ -308,8 +309,8 @@
       ]
     },
     "/Users/vivienfoucaut/Equalis/contracts/RedistributionPool.sol": {
-      "lastModificationDate": 1754771735598,
-      "contentHash": "51c61b8374cd7cbf050be43bffc61ed2",
+      "lastModificationDate": 1754776911407,
+      "contentHash": "5c269b10f7a4ba2e586a175f217e4e22",
       "sourceName": "contracts/RedistributionPool.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -339,6 +340,7 @@
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
         "@openzeppelin/contracts/access/AccessControl.sol",
+        "@openzeppelin/contracts/utils/Pausable.sol",
         "./EligibilityRegistry.sol"
       ],
       "versionPragmas": [
@@ -1643,7 +1645,7 @@
       ]
     },
     "/Users/vivienfoucaut/Equalis/contracts/automation/AutomationDistributor.sol": {
-      "lastModificationDate": 1754772651510,
+      "lastModificationDate": 1754773769930,
       "contentHash": "6606e02954ca123789d03f3e709cb27b",
       "sourceName": "contracts/automation/AutomationDistributor.sol",
       "solcConfig": {
@@ -2539,6 +2541,83 @@
       ],
       "artifacts": [
         "Hashes"
+      ]
+    },
+    "/Users/vivienfoucaut/Equalis/node_modules/@openzeppelin/contracts/utils/Pausable.sol": {
+      "lastModificationDate": 1754771507703,
+      "contentHash": "0d47b53e10b1985efbb396f937626279",
+      "sourceName": "@openzeppelin/contracts/utils/Pausable.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 500
+          },
+          "evmVersion": "cancun",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Pausable"
+      ]
+    },
+    "/Users/vivienfoucaut/Equalis/contracts/attestation/AttesterStaking.sol": {
+      "lastModificationDate": 1754776928447,
+      "contentHash": "e8fd2e38efdc7746356ee0676b770bc6",
+      "sourceName": "contracts/attestation/AttesterStaking.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 500
+          },
+          "evmVersion": "cancun",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/AccessControl.sol",
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.26"
+      ],
+      "artifacts": [
+        "AttesterStaking"
       ]
     }
   }

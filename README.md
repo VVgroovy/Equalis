@@ -1,21 +1,21 @@
-## Equalis — Protocole de redistribution avec plafond salarial (Cap & Redistribute)
+## Equalis — Capped Payroll with Automatic Redistribution
 
-Equalis est une crypto/infra conçue pour redistribuer automatiquement les dépassements de rémunération au-delà d’un plafond annuel (par défaut 20 000 000.00 unités du token de paie), vers des adultes éligibles qui en font la demande. Elle s’appuie sur:
+Equalis is a crypto infrastructure to cap annual compensation (default 20,000,000.00 payment-token units) and automatically redistribute the overflow to eligible adults who opt in.
 
-- Contrats on-chain vérifiables (paie plafonnée, pool de redistribution, registre d’éligibilité)
-- Gouvernance timelock + vote (ERC20Votes)
-- Automatisation hebdomadaire (compatible Chainlink)
-- Scalabilité massive via distributions par epochs (Merkle claims)
-- Confidentialité: identités pseudonymes (hash), option ZK pour âge/unicité
+- Verifiable on-chain contracts (capped payroll, redistribution pool, eligibility registry)
+- Timelocked on-chain governance (ERC20Votes)
+- Weekly automation (Chainlink-compatible)
+- Massive scale via epoch-based Merkle claims
+- Privacy by design: pseudonymous identities (hash), optional ZK checks for age/uniqueness
 
-### Points clés
-- Plafond annuel par identité (`CompensationLimiter`), appliqué à la source côté paie (`RedistributivePayroll`).
-- Dépassement redirigé vers `RedistributionPool`, redistribution égale en batches (hebdo par défaut).
-- Registre `EligibilityRegistry`: atteste l’éligibilité (adultes opt-in) sans PII on-chain; hook vérificateur ZK optionnel.
-- Gouvernance: `GovernanceToken (EQT)` + `EqualisGovernor` + `TimelockSetup`.
-- Scalabilité: `MerkleEpochDistributor` pour des millions de bénéficiaires.
+### Highlights
+- Per-identity annual cap enforced at source (`CompensationLimiter` + `RedistributivePayroll`).
+- Overflow redirected to `RedistributionPool`, equally redistributed in batches (weekly by default).
+- `EligibilityRegistry`: attestation without on-chain PII; optional ZK verifier hook.
+- Governance: `GovernanceToken (EQT)` + `EqualisGovernor` + `TimelockSetup`.
+- Scale: `MerkleEpochDistributor` for tens of millions of recipients.
 
-### Aperçu rapide du code (extraits)
+### Quick code glance
 
 ```solidity
 // RedistributivePayroll
@@ -32,9 +32,9 @@ function distribute(uint256 maxRecipients) external
 function registerIdentity(address subject, bytes32 identityId) external onlyRole(ATTESTER_ROLE)
 ```
 
-Pour les détails, voir `contracts/` et `docs/`.
+See `contracts/` and `docs/` for details. A French version is available in `README.fr.md`.
 
-### Installation
+### Install
 
 ```bash
 pnpm install || npm install
@@ -42,10 +42,10 @@ npx hardhat compile
 ```
 
 ### Configuration (.env)
-Copiez `.env.example` en `.env` et remplissez:
+Copy `.env.example` to `.env`:
 
 ```
-PAYMENT_TOKEN_ADDRESS= # Adresse stablecoin (ex. USDC)
+PAYMENT_TOKEN_ADDRESS= # Stablecoin address (e.g. USDC)
 PAYMENT_TOKEN_DECIMALS=6
 SEPOLIA_RPC_URL=
 PRIVATE_KEY=
@@ -53,60 +53,59 @@ ETHERSCAN_API_KEY=
 RPC_URL=http://127.0.0.1:8545
 ```
 
-### Déploiement local
+### Local deploy
 
 ```bash
 npx hardhat node &
 npx hardhat run scripts/deploy.ts --network localhost
 ```
 
-Par défaut, un `MockStablecoin` est déployé localement et le plafond annuel est aligné sur les `PAYMENT_TOKEN_DECIMALS` (20 000 000.00).
+By default a `MockStablecoin` is deployed locally and the annual cap is aligned with `PAYMENT_TOKEN_DECIMALS` (20,000,000.00).
 
-### Déploiement sur un réseau (ex. Sepolia)
+### Testnet deploy (e.g., Sepolia)
 
 ```bash
-export PAYMENT_TOKEN_ADDRESS=0x...   # stablecoin réel
+export PAYMENT_TOKEN_ADDRESS=0x...   # production stablecoin
 export PAYMENT_TOKEN_DECIMALS=6
 npx hardhat run scripts/deploy.ts --network sepolia
 ```
 
-### Attestation & employeurs (scripts)
+### Attestation & employers (scripts)
 
 ```bash
 export REGISTRY=0x...
 export PAYROLL=0x...
-export EMPLOYER=0xEmployeur
-export SUBJECT=0xEmploye
+export EMPLOYER=0xEmployer
+export SUBJECT=0xEmployee
 npx hardhat run scripts/admin.ts --network sepolia
 ```
 
-### Automatisation hebdo (Chainlink)
-- Déployez `AutomationDistributor` et pointez un Upkeep sur `performUpkeep(bytes)`.
-- Paramètres: `batchSize` (nb max de bénéficiaires par appel), `minInterval` (ex. 7j).
+### Weekly automation (Chainlink)
+- Deploy `AutomationDistributor` and point an Upkeep at `performUpkeep(bytes)`.
+- Params: `batchSize` (max recipients per call), `minInterval` (e.g., 7 days).
 
-### Distribution à grande échelle (Merkle epochs)
-1. Off-chain: calculez allocations + racine Merkle.
-2. On-chain: alimentez le contrat puis `setEpochRoot(epochId, root, totalAllocated)`.
-3. Les bénéficiaires réclament via `claim(index, account, amount, proof)`.
+### Large-scale distribution (Merkle epochs)
+1) Off-chain: compute allocations + Merkle root.
+2) On-chain: fund contract and call `setEpochRoot(epochId, root, totalAllocated)`.
+3) Beneficiaries claim via `claim(index, account, amount, proof)`.
 
-### Gouvernance
-1. Déployer `GovernanceToken`, `TimelockSetup`, `EqualisGovernor`.
-2. Transférer les rôles admin des contrats (registry/limiter/pool/payroll) au timelock.
-3. Paramétrer cadence/fees/attesteurs via propositions avec timelock.
+### Governance
+1) Deploy `GovernanceToken`, `TimelockSetup`, `EqualisGovernor`.
+2) Transfer admin roles of core contracts to the timelock.
+3) Govern cadence/fees/attesters via proposals (timelocked).
 
-### Politique de frais (optionnelle ≤ 5%)
-- Si activée, la ponction ne s’applique que sur le dépassement redistribué (jamais les salaires), avec plafond dur et trajectoire dégressive décidés par gouvernance.
+### Fee policy (optional ≤ 5%)
+- If enabled, fee applies only to overflow being redistributed (never salaries), with a hard cap and a decreasing schedule decided by governance.
 
-### IA “Lakshmi” (copilote)
-- Surveille on/off-chain, produit rapports d’équité, détecte anomalies/Sybil, propose des changements de paramètres (validation par vote, jamais de contrôle direct des fonds).
-Voir `docs/ARCHITECTURE.md` et `docs/COMPLIANCE_PRIVACY.md`.
+### “Lakshmi” AI copilot
+- Observes on/off-chain, produces fairness reports, detects anomalies/Sybil, proposes parameter changes (validated by vote, never controls funds). See `docs/ARCHITECTURE.md` and `docs/COMPLIANCE_PRIVACY.md`.
 
-### Références
-- `docs/ARCHITECTURE.md`: architecture détaillée
-- `docs/TOKENOMICS.md`: principes économiques
-- `docs/COMPLIANCE_PRIVACY.md`: conformité et privacy
+### References
+- `docs/ARCHITECTURE.md`: architecture
+- `docs/TOKENOMICS.md`: economics
+- `docs/COMPLIANCE_PRIVACY.md`: compliance & privacy
 
-### Licence
+### License
 MIT
 
 
